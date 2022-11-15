@@ -1,34 +1,37 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+
+import { injectClassName, injectScriptLang, injectStyleLang, resolveParams } from './utils'
+import { defaultTemplate } from './template'
+import { dirname } from 'path'
+import { promises as fs, statSync } from 'fs'
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	
+	let disposable = vscode.commands.registerCommand('generate-vue-component.generate', async (editor) => {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "generate-vue-component" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('generate-vue-component.generate', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window
-    .showInputBox({
-      value: "",
-      prompt: "Component name",
-      ignoreFocusOut: true,
-      valueSelection: [-1, -1],
-    }).then(name => {
-			console.log(name);
-		});
+		const dir = statSync(editor.path).isFile() ? dirname(editor.path) : editor.path;
+		const name = await vscode.window.showInputBox({
+			value: "",
+			prompt: "Component name",
+			ignoreFocusOut: true,
+			valueSelection: [-1, -1],
+		})
+		if (!name) {
+			return;
+		}
+		const { scriptLang, styleLang, name: _name } = resolveParams(name);
+		const filename = `${dir}/${_name}.vue`;
+		let content = defaultTemplate
+		content = injectClassName(content, _name!.toLowerCase())
+		content = injectScriptLang(content, scriptLang)
+		content = injectStyleLang(content, styleLang, _name!.toLowerCase())
+		await fs.writeFile(filename, content);
+		const doc = await vscode.workspace.openTextDocument(filename)
+		await vscode.window.showTextDocument(doc)
+	
 	});
 
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}

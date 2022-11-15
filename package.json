@@ -1,6 +1,6 @@
 {
   "name": "generate-vue-component",
-  "displayName": "generate-vue-component",
+  "displayName": "generate vue component",
   "description": "generate vue component",
   "version": "0.0.1",
   "engines": {
@@ -10,23 +10,22 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:generate-vue-component.helloWorld"
+    "onCommand:generate-vue-component.generate"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "generate-vue-component.generate",
-        "title": "Hello World"
+        "title": "Generate Vue component"
       }
     ],
     "menus": {
-      "editor/context": [
-				{
-					"command": "generate-vue-component.generate", 
-					"group": "group1" 
-				}
-			]
+      "explorer/context": [
+        {
+          "command": "generate-vue-component.generate"
+        }
+      ]
     }
   },
   "scripts": {
@@ -38,16 +37,19 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.73.0",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "16.x",
+    "@types/vscode": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.42.0",
     "@typescript-eslint/parser": "^5.42.0",
+    "@vscode/test-electron": "^2.2.0",
     "eslint": "^8.26.0",
     "glob": "^8.0.3",
     "mocha": "^10.1.0",
-    "typescript": "^4.8.4",
-    "@vscode/test-electron": "^2.2.0"
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "magic-string": "^0.26.7"
   }
 }
