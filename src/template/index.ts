@@ -4,5 +4,4 @@ export const defaultTemplate = `<script setup></script>
   <div></div>
 </template>
 
-<style>
-</style>`
+<style></style>`

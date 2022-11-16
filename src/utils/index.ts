@@ -1,12 +1,16 @@
 import MagicString from 'magic-string';
+import * as vscode from 'vscode'
+import { promises as fs } from 'fs'
+import { join } from 'path'
 
 export function injectClassName(content: string, className: string) {
+  className = transfrom(className)
   const s = new MagicString(content);
   const matched = content.match(/class="([^"]*)"/);
   if (matched) {
     const [_] = matched;
     const index = matched.index!
-    s.overwrite(index, index + _.length, className);
+    s.overwrite(index, index + _.length, `class="${className}"`);
     return s.toString();
   }
   return content.replace(/<div/, `<div class="${className}"`);
@@ -19,7 +23,7 @@ export function injectScriptLang(content: string, lang: string) {
   if (matched) {
     const [_, group] = matched;
     const index = matched.index!
-    s.overwrite(index, index + _.length, `<script${group ? group : ' '} lang="${lang}">`);
+    s.overwrite(index, index + _.length, `<script${group ? group : ''} lang="${lang}">`);
     return s.toString();
   }
   return content.replace(/<script/, `<script lang="${lang}"`);
@@ -27,19 +31,21 @@ export function injectScriptLang(content: string, lang: string) {
 }
 
 export function injectStyleLang(content: string, lang: string, className: string) {
+  className = transfrom(className)
   const s = new MagicString(content);
-  const matched = content.match(/<style.*>/);
+  const matched = content.match(/<style[^>]+>/);
   const append = `<style${ lang ? ` lang="${lang}"` : '' }>
   .${className} {
   
-  }`
+  }
+`
   if (matched) {
     const [_] = matched;
     const index = matched.index!
     s.overwrite(index, index + _.length, append);
     return s.toString();
   }
-  return content.replace(/<style/, append);
+  return content.replace(/<style>/, append);
 }
 
 export function resolveParams(filename: string) {
@@ -74,4 +80,22 @@ export function resolveParams(filename: string) {
     styleLang,
     name
   }
+}
+
+export async function resolveUserTemplate() {
+  const config = vscode.workspace.getConfiguration('generateVueComponent')
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri
+  const template = config.get<string>('template')
+  if (template && workspaceFolder) {
+    try {
+      const userTemplate = await fs.readFile(join(workspaceFolder.path, template), 'utf-8')
+      return userTemplate
+    } catch (err) {
+      return null
+    }
+  }
+}
+
+function transfrom(name: string) {
+  return name.replace(/[A-Z]/g, (_) => '-' + _.toLocaleLowerCase()).replace(/^-/, '')
 }

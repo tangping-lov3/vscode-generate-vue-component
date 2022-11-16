@@ -1,5 +1,5 @@
 
-import { injectClassName, injectScriptLang, injectStyleLang, resolveParams } from './utils'
+import { injectClassName, injectScriptLang, injectStyleLang, resolveParams, resolveUserTemplate } from './utils'
 import { defaultTemplate } from './template'
 import { dirname } from 'path'
 import { promises as fs, statSync } from 'fs'
@@ -21,10 +21,10 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		const { scriptLang, styleLang, name: _name } = resolveParams(name);
 		const filename = `${dir}/${_name}.vue`;
-		let content = defaultTemplate
-		content = injectClassName(content, _name!.toLowerCase())
+		let content = await resolveUserTemplate() || defaultTemplate
+		content = injectClassName(content, _name)
 		content = injectScriptLang(content, scriptLang)
-		content = injectStyleLang(content, styleLang, _name!.toLowerCase())
+		content = injectStyleLang(content, styleLang, _name)
 		await fs.writeFile(filename, content);
 		const doc = await vscode.workspace.openTextDocument(filename)
 		await vscode.window.showTextDocument(doc)

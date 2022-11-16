@@ -14,10 +14,20 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Generate Vue Component Configuration",
+      "properties": {
+          "generateVueComponent.template": {
+              "type": "string",
+              "default": "",
+              "description": "template"
+          }
+      }
+    },
     "commands": [
       {
         "command": "generate-vue-component.generate",
-        "title": "Generate Vue component"
+        "title": "Generate Vue Component"
       }
     ],
     "menus": {
